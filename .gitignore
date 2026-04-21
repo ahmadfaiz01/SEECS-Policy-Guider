@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.idea/
+data/indexes/
+data/processed/
+experiments/results/
+experiments/figures/
+*.pdf
