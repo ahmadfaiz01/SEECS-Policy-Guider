@@ -1,45 +1,117 @@
-# 🎓 SEECS Policy Guider: Scalable Academic QA System
+# SEECS Policy QA System
 
-Hey there! Welcome to the **SEECS Policy Guider**. This project is a custom-built, Retrieval-Augmented Generation (RAG) system designed to answer student policy questions quickly and accurately. Instead of relying on a generic chatbot that hallucinates rules, this system is strictly grounded in the official NUST SEECS Undergraduate and Postgraduate handbooks. 
+A scalable, academic policy question-answering system over the NUST SEECS Undergraduate and Postgraduate handbooks. 
 
-If it's in the handbook, this system will find it. If it's not, it won't make it up!
-
----
-
-## 🏗️ How It Works (The Architecture)
-
-We built this entirely from scratch, focusing on high-performance retrieval algorithms rather than just throwing everything into a vector database.
-
-1. **Document Ingestion:** We parse the raw PDF handbooks, clean the text, and chunk them into meaningful, easily digestible paragraphs (roughly 150 words each).
-2. **The Retrieval Engine:** This is the core of the project. We implemented three distinct search algorithms to test speed vs. accuracy:
-   * **TF-IDF (The Exact Baseline):** Does a full mathematical comparison of the query against every chunk. It's accurate but computationally heavy.
-   * **MinHash LSH:** An approximate retrieval method. We generate "shingles" of the text, compress them into signatures, and use Locality Sensitive Hashing to group similar chunks into buckets. This makes searching incredibly fast!
-   * **SimHash:** Another approximate method using 64-bit fingerprints and Hamming distance to find overlaps.
-3. **Knowledge Graph (PageRank):** Policies reference each other (e.g., *"Subject to rules in Clause 4"*). We built a network graph of these cross-references and ran the **PageRank** algorithm to find the most "authoritative" sections of the handbook. This acts as a smart tie-breaker to boost highly-referenced policies during a search.
-4. **Answer Synthesis:** Once we fetch the top 5 most relevant excerpts, we send *only those excerpts* to a massive LLM (Llama 3 70B via Groq) to synthesize a clean, natural-language answer for the student.
+This project is built as a **strict Retrieval-Augmented Generation (RAG) pipeline**. Instead of relying on an LLM's internal memory (which risks hallucinations), the system uses **MinHash LSH, SimHash, and TF-IDF** to quickly retrieve relevant exact handbook excerpts as evidence. Only these verified excerpts are sent to the LLM to synthesize an answer.
 
 ---
 
-## 🚀 Running the Project Locally
+## 🏗️ System Architecture
 
-Want to spin this up on your own machine? It's super easy.
+```mermaid
+graph TD
+    %% Ingestion
+    subgraph Data Ingestion
+        A[Handbook PDFs] --> B[pdfplumber & regex cleaning]
+        B --> C[Chunking 150-word passages]
+        C --> D[(chunks.jsonl)]
+    end
 
-1. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+    %% Indexing
+    subgraph Indexing Algorithms
+        D --> E[TF-IDF Matrix]
+        D --> F[MinHash LSH Signatures]
+        D --> G[SimHash Fingerprints]
+        D --> H[PageRank Network Graph]
+    end
 
-2. **Set up your API Key:**
-   Rename `.env.example` to `.env` and paste in your Groq API key (this is required for the answer generation phase).
+    %% Query Pipeline
+    subgraph Query Execution
+        I[User Question] --> J{Retrieval Strategy}
+        J -->|Exact Baseline| K[TF-IDF Cosine Similarity]
+        J -->|Approximate| L[MinHash LSH / SimHash]
+        
+        K --> M[Candidate Excerpts]
+        L --> M
+        
+        H -.->|Authority Boost| M
+    end
 
-3. **Run the Dashboard:**
-   ```bash
-   streamlit run app.py
-   ```
-   *Note: If you haven't built the indexes yet, the app will automatically build them from the PDFs on its very first startup!*
+    %% Generation & UI
+    subgraph Output
+        M --> N[Groq API / Llama-3]
+        N --> O[Streamlit UI]
+        M -.->|Displays Evidence| O
+    end
+```
 
 ---
 
-## 🧪 Experiments & Benchmarks
+## ✅ Requirement Coverage
 
-If you want to see the raw data proving that our approximate retrieval (MinHash/SimHash) is faster than the exact baseline, check out the `experiments/` folder. Running `python experiments/benchmark.py` will generate automated latency, memory, and precision tests that you can view directly in the "Performance Analytics" tab of the UI!
+| Requirement | Status | Where |
+| --- | --- | --- |
+| PDF ingestion and cleaning | Implemented | `src/ingestion/`, `build_index.py` |
+| 200-500 word chunking target | Implemented with tunable chunking | `chunk_pages(..., chunk_size=150, overlap=50)` |
+| MinHash + LSH | Implemented from scratch | `src/indexing/minhash_lsh.py` |
+| SimHash + Hamming distance | Implemented from scratch | `src/indexing/simhash.py` |
+| TF-IDF cosine baseline | Implemented | `src/indexing/tfidf_retriever.py` |
+| Query-time comparison | Implemented | `src/retrieval/pipeline.py`, `app.py` |
+| Grounded answer generation | Implemented with optional Groq API | `src/generation/answer_gen.py` |
+| Evidence and page/source display | Implemented | `app.py` |
+| Competitive extension | PageRank section authority boost | `src/extensions/pagerank.py` |
+| Required experiments | Implemented | `experiments/benchmark.py` |
+
+## 📂 Project Structure
+
+```text
+src/
+  ingestion/       PDF parsing, cleaning, and context-aware chunking
+  indexing/        MinHash LSH, SimHash, and exact TF-IDF baseline
+  retrieval/       Query pipeline with strict latency and memory tracking
+  generation/      Grounded LLM answer synthesis (Groq API)
+  extensions/      PageRank computation for policy cross-references
+experiments/
+  benchmark.py     Exact vs approximate, sensitivity, and scalability testing
+  plots.py         Figure generation from benchmark results
+data/
+  processed/       Generated jsonl text chunks
+  indexes/         Generated index binaries (not tracked in Git)
+app.py             Streamlit dashboard
+build_index.py     Generates data/ and indexes from raw PDFs
+```
+
+## 🚀 Quick Start (Local & Cloud)
+
+**Local Deployment:**
+```powershell
+pip install -r requirements.txt
+copy .env.example .env
+python build_index.py
+streamlit run app.py
+```
+*Note: Add your `GROQ_API_KEY` to `.env` if you want synthesized answers. Retrieval and analytics work purely locally without the LLM key.*
+
+**Streamlit Community Cloud Deployment:**
+This repository is pre-configured for automatic deployment on Streamlit Cloud. 
+1. Go to share.streamlit.io and connect your GitHub.
+2. Select your repository and set `app.py` as the main file.
+3. In the Advanced Settings **Secrets** block, add `GROQ_API_KEY="your_key"`.
+4. Deploy! The app will automatically run `build_index.py` on startup to generate the indexes on the cloud server.
+
+## 🧪 Experiments
+
+```powershell
+python experiments/benchmark.py
+python experiments/plots.py
+```
+
+Generated CSVs:
+
+| File | Purpose |
+| --- | --- |
+| `exp1_comparison.csv` | TF-IDF vs Hybrid LSH vs MinHash vs SimHash latency, memory, Precision@5 |
+| `exp2a_minhash_sensitivity.csv` | Effect of hash functions and bands |
+| `exp2b_simhash_sensitivity.csv` | Effect of Hamming threshold |
+| `exp3_scalability.csv` | Corpus duplication scalability test |
+| `manual_evaluation_template.csv` | Blank template for manual human evaluation in final report |
