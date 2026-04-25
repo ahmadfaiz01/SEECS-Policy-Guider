@@ -5,6 +5,3 @@ __pycache__/
 .idea/
 data/indexes/
 data/processed/
-experiments/results/
-experiments/figures/
-*.pdf
