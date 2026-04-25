@@ -134,9 +134,18 @@ st.markdown(
 
 @st.cache_resource(show_spinner="Initializing retrieval engines...")
 def load_pipeline():
-    if not CHUNKS_FILE.exists():
-        return None
-    return RetrievalPipeline(str(INDEX_DIR), str(CHUNKS_FILE))
+    if not INDEX_DIR.exists() or not CHUNKS_FILE.exists():
+        with st.spinner("First time setup: Building indexes from PDFs (this takes ~10 seconds)..."):
+            import subprocess
+            try:
+                subprocess.run([sys.executable, "build_index.py"], check=True)
+            except Exception as e:
+                st.error(f"Failed to build indexes automatically: {e}")
+                return None
+                
+    if INDEX_DIR.exists() and CHUNKS_FILE.exists():
+        return RetrievalPipeline(str(INDEX_DIR), str(CHUNKS_FILE))
+    return None
 
 @st.cache_resource(show_spinner="Initializing network graphs...")
 def load_pagerank():
