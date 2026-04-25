@@ -1,12 +1,10 @@
-# SEECS Policy QA System
+# SEECS Policy Guider
 
-A scalable, academic policy question-answering system over the NUST SEECS Undergraduate and Postgraduate handbooks. 
+Live Demo: [yet to post]
 
-This project is built as a **strict Retrieval-Augmented Generation (RAG) pipeline**. Instead of relying on an LLM's internal memory (which risks hallucinations), the system uses **MinHash LSH, SimHash, and TF-IDF** to quickly retrieve relevant exact handbook excerpts as evidence. Only these verified excerpts are sent to the LLM to synthesize an answer.
+A scalable academic policy question-answering system strictly grounded in the NUST SEECS Undergraduate and Postgraduate handbooks. This project operates as a strict Retrieval-Augmented Generation (RAG) pipeline.
 
----
-
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 graph TD
@@ -45,9 +43,17 @@ graph TD
     end
 ```
 
----
+## How It Works
 
-## ✅ Requirement Coverage
+1. **Document Ingestion:** The system parses raw PDF handbooks, cleans the text, and chunks them into meaningful passages of roughly 150 words.
+2. **The Retrieval Engine:** Three distinct search algorithms are implemented to test speed versus accuracy:
+   * **TF-IDF (Exact Baseline):** Performs a full mathematical comparison of the query against every chunk.
+   * **MinHash LSH:** An approximate retrieval method that generates text "shingles", compresses them into signatures, and uses Locality Sensitive Hashing to group similar chunks.
+   * **SimHash:** An approximate method using 64-bit fingerprints and Hamming distance to find overlapping textual evidence.
+3. **Bonus Extension: Knowledge Graph (PageRank):** Policies frequently cross-reference each other. The system builds a network graph of these cross-references and applies the PageRank algorithm to determine the most authoritative sections of the handbook. This acts as a smart tie-breaker to boost highly-referenced policies during a search.
+4. **Answer Synthesis:** The system fetches the top relevant excerpts and strictly limits the LLM (Llama-3 via Groq) to synthesize a natural-language answer using only the retrieved evidence.
+
+## Requirement Coverage
 
 | Requirement | Status | Where |
 | --- | --- | --- |
@@ -62,7 +68,7 @@ graph TD
 | Competitive extension | PageRank section authority boost | `src/extensions/pagerank.py` |
 | Required experiments | Implemented | `experiments/benchmark.py` |
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 src/
@@ -81,9 +87,8 @@ app.py             Streamlit dashboard
 build_index.py     Generates data/ and indexes from raw PDFs
 ```
 
-## 🚀 Quick Start (Local & Cloud)
+## Quick Start (Local)
 
-**Local Deployment:**
 ```powershell
 pip install -r requirements.txt
 copy .env.example .env
@@ -92,14 +97,7 @@ streamlit run app.py
 ```
 *Note: Add your `GROQ_API_KEY` to `.env` if you want synthesized answers. Retrieval and analytics work purely locally without the LLM key.*
 
-**Streamlit Community Cloud Deployment:**
-This repository is pre-configured for automatic deployment on Streamlit Cloud. 
-1. Go to share.streamlit.io and connect your GitHub.
-2. Select your repository and set `app.py` as the main file.
-3. In the Advanced Settings **Secrets** block, add `GROQ_API_KEY="your_key"`.
-4. Deploy! The app will automatically run `build_index.py` on startup to generate the indexes on the cloud server.
-
-## 🧪 Experiments
+## Experiments
 
 ```powershell
 python experiments/benchmark.py
