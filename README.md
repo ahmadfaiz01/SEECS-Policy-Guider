@@ -1,6 +1,6 @@
 # SEECS Policy Guider
 
-Live Demo: [yet to post]
+Live Demo: https://seecs-policy-guider.streamlit.app/
 
 A scalable academic policy question-answering system strictly grounded in the NUST SEECS Undergraduate and Postgraduate handbooks. This project operates as a strict Retrieval-Augmented Generation (RAG) pipeline.
 
