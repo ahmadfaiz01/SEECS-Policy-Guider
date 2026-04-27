@@ -1,5 +1,4 @@
 query,tfidf_latency_ms,hybrid_lsh_latency_ms,minhash_latency_ms,simhash_latency_ms,tfidf_mem_kb,hybrid_lsh_mem_kb,minhash_mem_kb,simhash_mem_kb,hybrid_lsh_precision5,minhash_precision5,simhash_precision5
-<<<<<<< HEAD
 What is the minimum CGPA requirement for graduatio,2.036,2.651,0.279,0.923,2566.31,959.58,9.08,28.91,0.6,0.0,0.0
 What happens if a student fails a course?,1.037,2.049,0.213,0.835,2550.43,948.29,9.09,28.29,1.0,0.2,0.2
 What is the attendance policy?,0.985,1.884,0.161,0.776,2549.82,842.36,8.97,28.2,0.2,0.0,0.0
@@ -15,20 +14,3 @@ What are the thesis requirements for MS students?,1.002,2.223,0.291,0.906,2549.8
 What is the policy on plagiarism?,0.99,2.055,0.164,0.779,2549.82,864.74,9.0,28.18,0.0,0.0,0.0
 How can a student appeal a grade?,1.007,2.124,0.271,0.836,2549.84,1046.17,9.05,28.37,0.2,0.0,0.0
 What are the requirements for changing a major?,0.97,2.111,0.266,0.908,2549.84,929.42,9.09,28.4,0.4,0.0,0.0
-=======
-What is the minimum CGPA requirement for graduatio,2.734,5.25,0.561,1.257,2205.03,880.8,8.92,28.32,0.6,0.0,0.0
-What happens if a student fails a course?,2.16,3.315,0.384,1.096,2203.4,865.9,8.95,27.39,1.0,0.2,0.2
-What is the attendance policy?,2.257,3.594,0.315,1.041,2202.97,769.95,8.84,27.39,0.2,0.0,0.0
-How many times can a course be repeated?,4.36,4.167,0.36,1.213,2202.84,839.43,8.92,27.35,0.0,0.0,0.0
-What is the grading scale at SEECS?,2.566,3.114,0.459,1.114,2202.87,846.5,8.91,27.49,0.2,0.0,0.0
-What are the requirements for the Dean's Honor Lis,2.641,3.424,0.519,1.488,2202.92,840.27,9.02,27.39,0.2,0.0,0.0
-What is the maximum course load per semester?,2.478,3.403,0.376,1.466,2202.84,789.14,8.83,27.43,0.2,0.0,0.0
-What is the policy on academic probation?,2.191,3.563,0.478,1.117,2202.84,807.14,8.88,27.47,0.2,0.0,0.0
-How are final grades calculated?,2.132,3.426,0.319,1.1,2202.82,866.81,8.84,27.35,0.2,0.0,0.0
-What is the procedure for dropping a course?,1.849,3.327,0.305,1.207,2202.79,777.91,8.95,27.41,0.4,0.0,0.0
-What is the internship requirement for graduation?,1.973,3.569,0.384,1.236,2202.66,802.11,8.88,27.53,0.4,0.4,0.0
-What are the thesis requirements for MS students?,1.778,4.186,0.582,1.293,2202.68,845.89,8.98,27.41,0.2,0.0,0.0
-What is the policy on plagiarism?,2.149,3.559,0.33,1.048,2202.6,789.88,8.84,27.38,0.0,0.0,0.0
-How can a student appeal a grade?,2.215,3.463,0.542,1.14,2202.66,953.26,8.98,27.52,0.2,0.0,0.0
-What are the requirements for changing a major?,2.531,3.361,0.507,1.405,2202.57,848.26,8.95,27.43,0.4,0.0,0.0
->>>>>>> origin/ahmad

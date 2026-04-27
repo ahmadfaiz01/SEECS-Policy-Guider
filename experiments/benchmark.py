@@ -188,11 +188,7 @@ def exp2_simhash_sensitivity(chunks: list) -> pd.DataFrame:
     tfidf = TFIDFRetriever()
     tfidf.fit([c["chunk_id"] for c in chunks], [c["text"] for c in chunks])
 
-<<<<<<< HEAD
     thresholds = [3, 5, 10, 15, 20, 25, 28, 30, 32, 35, None]
-=======
-    thresholds = [3, 5, 8, 10, 12, 15, 20, None]
->>>>>>> origin/ahmad
     records = []
 
     for threshold in thresholds:
