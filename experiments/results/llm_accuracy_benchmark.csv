@@ -1,0 +1,22 @@
+query,method,method_label,latency_ms,correctness,completeness,hallucination_risk,verdict,notes,reference_answer,candidate_answer
+What is the minimum CGPA requirement for graduation?,hybrid_lsh,Hybrid LSH,4.347,5,5,0,Accurate,"The candidate answer accurately reflects the minimum CGPA requirements for each degree type, matching the reference answer.","The minimum CGPA requirement for graduation varies depending on the degree. 
+
+For Master's degree, the minimum CGPA requirement is 3.00 (as stated in excerpts [1], [2], [3], [6], and [9]). 
+
+For Ph.D. degree, the minimum CGPA requirement is 3.50 (as stated in excerpts [3] and [6]). 
+
+For undergraduate degree, the minimum CGPA requirement is 2.00 (as stated in excerpts [4], [5], [11], and [12]), with some programs requiring a minimum CGPA of 2.50 (as stated in excerpt [12]).","The minimum CGPA requirement for graduation varies depending on the degree. 
+
+For a Master's degree, the minimum CGPA requirement is 3.00. 
+For a Ph.D. degree, the minimum CGPA requirement is 3.50. 
+For an undergraduate degree, the minimum CGPA requirement is 2.00, but some programs require a minimum CGPA of 2.50."
+What is the minimum CGPA requirement for graduation?,tfidf,TF-IDF Baseline,2.714,4,4,1,Partially Correct,"The candidate answer is mostly correct but lacks specific references for the Ph.D. degree and does not mention all the excerpts for the Master's and undergraduate degrees. Additionally, it introduces specific program names (BBA, BS Economics) not mentioned in the reference answer, which could be considered as slightly increasing the hallucination risk.","The minimum CGPA requirement for graduation varies depending on the degree. 
+
+For Master's degree, the minimum CGPA requirement is 3.00 (as stated in excerpts [1], [2], [3], [6], and [9]). 
+
+For Ph.D. degree, the minimum CGPA requirement is 3.50 (as stated in excerpts [3] and [6]). 
+
+For undergraduate degree, the minimum CGPA requirement is 2.00 (as stated in excerpts [4], [5], [11], and [12]), with some programs requiring a minimum CGPA of 2.50 (as stated in excerpt [12]).","The minimum CGPA requirement for graduation varies depending on the degree. 
+For a Master's degree, the minimum CGPA is 3.00 ([1] and [2] and [3]). 
+For a Ph.D. degree, the minimum CGPA is 3.50 ([3]). 
+For an undergraduate programme, the minimum CGPA is 2.00, but 2.50 for certain programmes such as BBA, BS Economics, and others ([4] and [5])."

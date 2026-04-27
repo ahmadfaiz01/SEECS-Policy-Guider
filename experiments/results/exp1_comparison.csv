@@ -1,0 +1,16 @@
+query,tfidf_latency_ms,hybrid_lsh_latency_ms,minhash_latency_ms,simhash_latency_ms,tfidf_mem_kb,hybrid_lsh_mem_kb,minhash_mem_kb,simhash_mem_kb,hybrid_lsh_precision5,minhash_precision5,simhash_precision5
+What is the minimum CGPA requirement for graduatio,2.036,2.651,0.279,0.923,2566.31,959.58,9.08,28.91,0.6,0.0,0.0
+What happens if a student fails a course?,1.037,2.049,0.213,0.835,2550.43,948.29,9.09,28.29,1.0,0.2,0.2
+What is the attendance policy?,0.985,1.884,0.161,0.776,2549.82,842.36,8.97,28.2,0.2,0.0,0.0
+How many times can a course be repeated?,0.97,2.073,0.188,0.873,2549.9,919.32,9.08,28.24,0.0,0.0,0.0
+What is the grading scale at SEECS?,0.984,2.031,0.258,0.836,2549.91,927.32,9.05,28.33,0.2,0.0,0.0
+What are the requirements for the Dean's Honor Lis,1.017,2.258,0.278,0.976,2549.84,920.26,9.18,28.47,0.2,0.0,0.0
+What is the maximum course load per semester?,1.324,2.084,0.182,0.887,2549.87,863.49,9.07,28.38,0.2,0.0,0.0
+What is the policy on academic probation?,1.011,2.145,0.223,0.793,2549.89,883.73,9.04,28.38,0.2,0.0,0.0
+How are final grades calculated?,0.981,1.892,0.147,0.813,2549.84,950.1,8.97,28.23,0.2,0.0,0.0
+What is the procedure for dropping a course?,0.975,1.949,0.168,0.859,2549.87,851.08,9.09,28.33,0.4,0.0,0.0
+What is the internship requirement for graduation?,0.976,2.005,0.199,0.876,2549.99,878.25,9.04,28.52,0.4,0.4,0.0
+What are the thesis requirements for MS students?,1.002,2.223,0.291,0.906,2549.89,927.04,9.09,28.39,0.2,0.0,0.0
+What is the policy on plagiarism?,0.99,2.055,0.164,0.779,2549.82,864.74,9.0,28.18,0.0,0.0,0.0
+How can a student appeal a grade?,1.007,2.124,0.271,0.836,2549.84,1046.17,9.05,28.37,0.2,0.0,0.0
+What are the requirements for changing a major?,0.97,2.111,0.266,0.908,2549.84,929.42,9.09,28.4,0.4,0.0,0.0

@@ -1,0 +1,6 @@
+multiplier,num_chunks,tfidf_latency_ms,hybrid_lsh_latency_ms,minhash_latency_ms,simhash_latency_ms
+1,625,1.099,2.713,0.338,0.936
+2,1250,1.514,3.525,0.456,1.522
+5,3125,2.769,5.915,0.82,3.39
+10,6250,4.607,10.228,1.438,6.97
+20,12500,8.464,18.364,2.664,13.517

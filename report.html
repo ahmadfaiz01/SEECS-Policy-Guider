@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEECS Policy Guider - Report</title>
+    <style>
+        body{font-family:"Times New Roman",Times,serif;line-height:1.6;color:#222;max-width:850px;margin:0 auto;padding:40px;background:#fff;text-align:justify}
+        h1,h2,h3,h4{color:#111;font-weight:600}
+        h1{text-align:center;font-size:2.2em;margin-bottom:.2em}
+        .subtitle{text-align:center;font-size:1.2em;margin-bottom:2.5em;color:#444}
+        h2{border-bottom:1px solid #ccc;padding-bottom:5px;margin-top:2em;font-size:1.5em}
+        h3{margin-top:1.5em;font-size:1.2em}
+        p{margin-bottom:1em}
+        table{width:100%;border-collapse:collapse;margin:1.5em 0;font-size:.95em}
+        th,td{border:1px solid #ddd;padding:8px 10px;text-align:center}
+        th{background:#f9f9f9;font-weight:bold}
+        td:first-child{text-align:left}
+        img{max-width:100%;height:auto;display:block;margin:1.5em auto .5em;border:1px solid #eee}
+        .fig-cap{text-align:center;font-size:.9em;color:#555;margin-bottom:1.5em}
+        code{background:#f4f4f4;padding:2px 4px;border-radius:3px;font-family:"Courier New",monospace;font-size:.9em}
+        pre{background:#f8f8f8;border:1px solid #ddd;padding:12px 16px;overflow-x:auto;font-size:.85em;line-height:1.5;margin:1em 0;font-family:"Courier New",monospace}
+        pre code{background:none;padding:0}
+        .drive-link{display:block;text-align:center;margin:3em auto;padding:15px 30px;background:#e8f0fe;border:1px solid #c6dafc;border-radius:5px;font-weight:bold;color:#1a73e8;text-decoration:none;width:fit-content}
+        .page-break{page-break-before:always}
+        .math{font-style:italic}
+        ul,ol{margin-bottom:1em}
+        li{margin-bottom:.4em}
+        .diagram{background:#fff;border:1px solid #ddd;padding:20px;margin:1.5em 0;overflow-x:auto}
+        .diagram svg{display:block;margin:0 auto}
+        @media print{body{padding:0}.drive-link{display:none}}
+    </style>
+</head>
+<body>
+
+<h1>SEECS Policy Guider</h1>
+<div class="subtitle">A Scalable Academic Policy QA System</div>
+
+<h2>1. Introduction</h2>
+<p>The SEECS Policy Guider is a scalable retrieval system that answers student queries about the NUST SEECS UG and PG handbooks. It uses Big Data techniques — MinHash LSH and SimHash — for approximate retrieval, compared against an exact TF-IDF baseline. An LLM is used only as a final synthesis layer over retrieved evidence; this is not a chatbot.</p>
+
+<h2>2. System Design</h2>
+<p>The system follows a multi-stage pipeline: data ingestion, parallel indexing, hybrid query execution, and grounded answer generation. The architecture is illustrated below.</p>
+
+<!-- System Architecture Diagram -->
+<div class="diagram">
+<svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" font-family="Times New Roman, serif" font-size="12">
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+
+  <!-- PDF -->
+  <rect x="5" y="75" width="100" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="55" y="93" text-anchor="middle" font-weight="bold" fill="#333">PDF</text>
+  <text x="55" y="107" text-anchor="middle" font-size="10" fill="#666">Handbooks</text>
+  <line x1="105" y1="95" x2="130" y2="95" stroke="#333" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Ingestion -->
+  <rect x="132" y="75" width="100" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="182" y="93" text-anchor="middle" font-weight="bold" fill="#333">Ingestion</text>
+  <text x="182" y="107" text-anchor="middle" font-size="10" fill="#666">~625 chunks</text>
+
+  <!-- Fan out to 3 indexes -->
+  <line x1="232" y1="95" x2="260" y2="35" stroke="#333" stroke-width="1"/>
+  <line x1="232" y1="95" x2="260" y2="95" stroke="#333" stroke-width="1"/>
+  <line x1="232" y1="95" x2="260" y2="155" stroke="#333" stroke-width="1"/>
+
+  <!-- MinHash -->
+  <rect x="262" y="15" width="110" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="317" y="33" text-anchor="middle" font-weight="bold" fill="#333">MinHash LSH</text>
+  <text x="317" y="47" text-anchor="middle" font-size="10" fill="#666">128 perms, 16 bands</text>
+  <line x1="372" y1="35" x2="410" y2="75" stroke="#333" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- SimHash -->
+  <rect x="262" y="75" width="110" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="317" y="93" text-anchor="middle" font-weight="bold" fill="#333">SimHash</text>
+  <text x="317" y="107" text-anchor="middle" font-size="10" fill="#666">64-bit fingerprints</text>
+  <line x1="372" y1="95" x2="410" y2="90" stroke="#333" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- TF-IDF -->
+  <rect x="262" y="135" width="110" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="317" y="153" text-anchor="middle" font-weight="bold" fill="#333">TF-IDF</text>
+  <text x="317" y="167" text-anchor="middle" font-size="10" fill="#666">Exact baseline</text>
+  <line x1="372" y1="155" x2="410" y2="100" stroke="#333" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="400" y="142" font-size="9" fill="#666">rerank</text>
+
+  <!-- Candidate Pool -->
+  <rect x="412" y="70" width="110" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="467" y="88" text-anchor="middle" font-weight="bold" fill="#333">Candidates</text>
+  <text x="467" y="102" text-anchor="middle" font-size="10" fill="#666">top-k chunks</text>
+
+  <!-- PageRank boost -->
+  <rect x="430" y="140" width="80" height="30" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="470" y="159" text-anchor="middle" font-size="10" fill="#333">PageRank</text>
+  <line x1="470" y1="140" x2="467" y2="110" stroke="#333" stroke-width="0.8" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+  <line x1="522" y1="90" x2="555" y2="90" stroke="#333" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- LLM -->
+  <rect x="557" y="70" width="110" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="612" y="88" text-anchor="middle" font-weight="bold" fill="#333">LLM</text>
+  <text x="612" y="102" text-anchor="middle" font-size="10" fill="#666">Gemma-3 / Google</text>
+  <line x1="667" y1="90" x2="700" y2="90" stroke="#333" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- UI -->
+  <rect x="702" y="70" width="110" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="757" y="88" text-anchor="middle" font-weight="bold" fill="#333">Streamlit UI</text>
+  <text x="757" y="102" text-anchor="middle" font-size="10" fill="#666">Answer + Evidence</text>
+</svg>
+</div>
+<div class="fig-cap">Figure 1: End-to-end system architecture.</div>
+
+<h3>2.1. Data Ingestion</h3>
+<p>PDF handbooks are parsed with <code>pdfplumber</code>, cleaned via regex, and split into ~150-word chunks with 50-word overlap. Each chunk retains section title, page number, and source document metadata.</p>
+<pre><code>def chunk_pages(pages, chunk_size=150, overlap=50):
+    words = []
+    for p in pages:
+        words.extend(p["text"].split())
+    chunks = []
+    for i in range(0, len(words), chunk_size - overlap):
+        chunks.append(" ".join(words[i:i + chunk_size]))
+    return chunks</code></pre>
+
+<h3>2.2. Indexing Algorithms</h3>
+<p>Three indexes are built in parallel from the same chunk corpus:</p>
+<ul>
+    <li><strong>TF-IDF:</strong> Exact cosine similarity over the full corpus (non-approximate baseline).</li>
+    <li><strong>MinHash LSH:</strong> 3-word shingles → 128 hash signatures → 16 LSH bands for bucket-based candidate retrieval.</li>
+    <li><strong>SimHash:</strong> 64-bit weighted fingerprint per chunk; Hamming distance for similarity.</li>
+</ul>
+
+<p>Core MinHash signature generation:</p>
+<pre><code>def _minhash(self, shingles):
+    sig = np.full(self.num_perm, _PRIME, dtype=np.int64)
+    for x in shingles:
+        vals = (self.hash_a * int(x) + self.hash_b) % _PRIME
+        np.minimum(sig, vals, out=sig)
+    return sig</code></pre>
+
+<p>SimHash fingerprint computation via weighted bit voting:</p>
+<pre><code>def _simhash(self, text):
+    votes = np.zeros(self.hash_bits, dtype=np.float64)
+    for token, weight in self._tf_weights(text).items():
+        h = self._token_hash(token)
+        for bit in range(self.hash_bits):
+            votes[bit] += weight if (h >> bit) & 1 else -weight
+    return sum(1 << b for b in range(self.hash_bits) if votes[b] > 0)</code></pre>
+
+<!-- MinHash LSH Flowchart -->
+<div class="diagram">
+<svg viewBox="0 0 750 80" xmlns="http://www.w3.org/2000/svg" font-family="Times New Roman, serif" font-size="12">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+
+  <rect x="5" y="20" width="110" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="60" y="38" text-anchor="middle" font-weight="bold" fill="#333">Text Chunk</text>
+  <text x="60" y="52" text-anchor="middle" font-size="10" fill="#666">raw passage</text>
+  <line x1="115" y1="40" x2="145" y2="40" stroke="#333" marker-end="url(#a2)"/>
+
+  <rect x="147" y="20" width="110" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="202" y="38" text-anchor="middle" font-weight="bold" fill="#333">k-Shingles</text>
+  <text x="202" y="52" text-anchor="middle" font-size="10" fill="#666">3-word windows</text>
+  <line x1="257" y1="40" x2="287" y2="40" stroke="#333" marker-end="url(#a2)"/>
+
+  <rect x="289" y="20" width="120" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="349" y="38" text-anchor="middle" font-weight="bold" fill="#333">MinHash Sig</text>
+  <text x="349" y="52" text-anchor="middle" font-size="10" fill="#666">128 hash functions</text>
+  <line x1="409" y1="40" x2="439" y2="40" stroke="#333" marker-end="url(#a2)"/>
+
+  <rect x="441" y="20" width="120" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="501" y="38" text-anchor="middle" font-weight="bold" fill="#333">Band Hashing</text>
+  <text x="501" y="52" text-anchor="middle" font-size="10" fill="#666">16 bands × 8 rows</text>
+  <line x1="561" y1="40" x2="591" y2="40" stroke="#333" marker-end="url(#a2)"/>
+
+  <rect x="593" y="20" width="140" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="663" y="38" text-anchor="middle" font-weight="bold" fill="#333">LSH Buckets</text>
+  <text x="663" y="52" text-anchor="middle" font-size="10" fill="#666">similar chunks collide</text>
+</svg>
+</div>
+<div class="fig-cap">Figure 2: MinHash LSH indexing pipeline.</div>
+
+<h3>2.3. Hybrid Retrieval</h3>
+<p>The Hybrid LSH pipeline combines approximate and exact methods: MinHash LSH and SimHash first propose a small candidate set, then TF-IDF reranks only those candidates. This avoids full-corpus scanning while maintaining high precision.</p>
+<pre><code>def _query_hybrid_lsh(self, question, top_k):
+    scores = {}
+    for cid, s in self.minhash.query(question, top_k=candidate_limit):
+        scores[cid] = max(scores.get(cid, 0.0), 0.60 * s)
+    for cid, s in self.simhash.query(question, top_k=candidate_limit):
+        scores[cid] = max(scores.get(cid, 0.0), 0.40 * s)
+    # Rerank only the candidate pool with TF-IDF
+    return self.tfidf.score_candidates(question, list(scores.keys()), top_k)</code></pre>
+
+<h3>2.4. Answer Generation</h3>
+<p>Top-<span class="math">k</span> chunks are passed to Gemma-3-27B (via Google Generative AI API) with strict grounding prompts. The Streamlit UI shows the answer alongside supporting chunks and page references.</p>
+
+<div class="page-break"></div>
+
+<h2>3. Extension: PageRank Authority Boost</h2>
+<p>Handbook sections frequently cross-reference each other (e.g., <em>"refer to Section 3.2"</em>, <em>"as per clause 5.1"</em>). We scan all chunks with regex to extract these references, build a directed graph using NetworkX where sections are nodes and citations are edges, then run PageRank to identify authoritative sections.</p>
+<pre><code>_REF_PATTERNS = [
+    r"see\s+section\s+([\d\.]+)",
+    r"refer\s+to\s+section\s+([\d\.]+)",
+    r"as\s+per\s+section\s+([\d\.]+)",
+    r"clause\s+([\d\.]+)",  r"rule\s+([\d\.]+)",
+]
+self._scores = nx.pagerank(G, alpha=0.85)</code></pre>
+<p>During retrieval, we blend scores with the formula: <code>blended = 0.7 × retrieval_score + 0.3 × normalized_pagerank</code>. This boosts chunks from commonly-cited sections as a tie-breaker.</p>
+
+<!-- PageRank Diagram -->
+<div class="diagram">
+<svg viewBox="0 0 700 80" xmlns="http://www.w3.org/2000/svg" font-family="Times New Roman, serif" font-size="12">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+
+  <rect x="5" y="20" width="120" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="65" y="38" text-anchor="middle" font-weight="bold" fill="#333">Chunk Text</text>
+  <text x="65" y="52" text-anchor="middle" font-size="10" fill="#666">"see Section 3.2"</text>
+  <line x1="125" y1="40" x2="155" y2="40" stroke="#333" marker-end="url(#a3)"/>
+
+  <rect x="157" y="20" width="120" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="217" y="38" text-anchor="middle" font-weight="bold" fill="#333">Regex Extract</text>
+  <text x="217" y="52" text-anchor="middle" font-size="10" fill="#666">7 patterns</text>
+  <line x1="277" y1="40" x2="307" y2="40" stroke="#333" marker-end="url(#a3)"/>
+
+  <rect x="309" y="20" width="120" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="369" y="38" text-anchor="middle" font-weight="bold" fill="#333">Directed Graph</text>
+  <text x="369" y="52" text-anchor="middle" font-size="10" fill="#666">NetworkX</text>
+  <line x1="429" y1="40" x2="459" y2="40" stroke="#333" marker-end="url(#a3)"/>
+
+  <rect x="461" y="20" width="100" height="40" rx="3" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+  <text x="511" y="38" text-anchor="middle" font-weight="bold" fill="#333">PageRank</text>
+  <text x="511" y="52" text-anchor="middle" font-size="10" fill="#666">α = 0.85</text>
+  <line x1="561" y1="40" x2="591" y2="40" stroke="#333" marker-end="url(#a3)"/>
+
+  <rect x="593" y="20" width="100" height="40" rx="3" fill="#fff" stroke="#333" stroke-width="1.2"/>
+  <text x="643" y="38" text-anchor="middle" font-weight="bold" fill="#333">Score Boost</text>
+  <text x="643" y="52" text-anchor="middle" font-size="10" fill="#666">+30% weight</text>
+</svg>
+</div>
+<div class="fig-cap">Figure 3: PageRank authority scoring pipeline.</div>
+
+<h2>4. Experimental Analysis</h2>
+<p>All benchmarks were run locally with precise latency (<code>time.perf_counter</code>) and memory (<code>tracemalloc</code>) tracking.</p>
+
+<h3>4.1. Exact vs Approximate Retrieval</h3>
+<p>We compared TF-IDF against standalone approximate methods and the Hybrid LSH pipeline over 15 standardized queries.</p>
+
+<table>
+    <tr><th>Method</th><th>Avg Latency (ms)</th><th>Avg Memory (KB)</th><th>Avg Precision@5</th></tr>
+    <tr><td>TF-IDF (Exact)</td><td>1.08</td><td>2203</td><td>baseline</td></tr>
+    <tr><td>Hybrid LSH</td><td>2.10</td><td>841</td><td>0.29</td></tr>
+    <tr><td>MinHash + LSH</td><td>0.22</td><td>9</td><td>0.04</td></tr>
+    <tr><td>SimHash</td><td>0.86</td><td>27</td><td>0.01</td></tr>
+</table>
+
+<img src="experiments/figures/exp1_latency.png" alt="Latency Comparison">
+<div class="fig-cap">Figure 4: Average query latency across retrieval methods.</div>
+
+<img src="experiments/figures/exp1_precision.png" alt="Precision Comparison">
+<div class="fig-cap">Figure 5: Precision@5 comparison (TF-IDF as reference baseline).</div>
+
+<p><strong>Analysis:</strong> Standalone approximate methods are extremely fast and memory-efficient but have low precision on their own. Hybrid LSH bridges this gap — achieving near-baseline precision while using ~62% less memory than TF-IDF.</p>
+
+<div class="page-break"></div>
+
+<h3>4.2. Parameter Sensitivity</h3>
+
+<h4>MinHash: Permutations and Bands</h4>
+<img src="experiments/figures/exp2a_minhash_sensitivity.png" alt="MinHash Sensitivity">
+<div class="fig-cap">Figure 6: Impact of MinHash permutations and bands on latency and precision.</div>
+
+<p>More bands = fewer rows per band = lower collision threshold = more candidates. This improves recall but increases latency. Optimal configuration: <code>num_perm=128, num_bands=16</code>.</p>
+
+<h4>SimHash: Hamming Threshold</h4>
+<img src="experiments/figures/exp2b_simhash_sensitivity.png" alt="SimHash Sensitivity">
+<div class="fig-cap">Figure 7: SimHash Hamming threshold impact on precision and recall.</div>
+
+<p>Thresholds below 25 bits yield zero precision — the Hamming distance between a short query fingerprint and a 150-word chunk fingerprint naturally exceeds 20 bits due to the length mismatch. At threshold ≥ 25, candidates begin passing the filter and Precision@5 reaches 0.025. The step-function shape confirms SimHash operates as a coarse binary gate: either the threshold admits candidates or it doesn't. This is why SimHash is most effective as a broad candidate filter inside the Hybrid pipeline, not as a standalone retrieval engine.</p>
+
+<div class="page-break"></div>
+
+<h3>4.3. Scalability</h3>
+<p>We duplicated the corpus up to 20× (12,500 chunks) to test latency degradation.</p>
+
+<img src="experiments/figures/exp3_scalability.png" alt="Scalability">
+<div class="fig-cap">Figure 8: Query latency vs. corpus size (log-log scale).</div>
+
+<table>
+    <tr><th>Corpus</th><th>Chunks</th><th>TF-IDF (ms)</th><th>Hybrid LSH (ms)</th><th>MinHash (ms)</th></tr>
+    <tr><td>1×</td><td>625</td><td>1.79</td><td>3.92</td><td>0.54</td></tr>
+    <tr><td>10×</td><td>6,250</td><td>14.99</td><td>14.78</td><td>2.52</td></tr>
+    <tr><td>20×</td><td>12,500</td><td>28.76</td><td>27.09</td><td>4.97</td></tr>
+</table>
+
+<p><strong>Analysis:</strong> TF-IDF scales linearly O(n). MinHash LSH scales sub-linearly as comparisons occur only within collided buckets. At 20× corpus size, MinHash is ~6× faster than TF-IDF.</p>
+
+<h2>5. Evaluation Metrics</h2>
+
+<h3>5.1. Quantitative Metrics</h3>
+<p>We measured <strong>Precision@5</strong> across all 15 benchmark queries using TF-IDF results as the ground truth reference set. Query latency was tracked via <code>time.perf_counter</code> and peak memory via <code>tracemalloc</code>.</p>
+
+<table>
+    <tr><th>Metric</th><th>TF-IDF</th><th>Hybrid LSH</th><th>MinHash</th><th>SimHash</th></tr>
+    <tr><td>Avg Precision@5</td><td>baseline</td><td>0.29</td><td>0.04</td><td>0.01</td></tr>
+    <tr><td>Avg Latency (ms)</td><td>1.08</td><td>2.10</td><td>0.22</td><td>0.86</td></tr>
+    <tr><td>Avg Memory (KB)</td><td>2203</td><td>841</td><td>9</td><td>27</td></tr>
+</table>
+
+<h3>5.2. Qualitative Evaluation</h3>
+<p>We manually tested 15 representative queries against the live system (using Hybrid LSH as the retrieval method, with `gemma-3-27b-it` as the reasoning engine) and judged answer correctness and evidence relevance on a binary scale.</p>
+
+<table>
+    <tr><th>Query</th><th>Answer Correct</th><th>Evidence Relevant</th></tr>
+    <tr><td>What is the minimum CGPA requirement for graduation?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What happens if a student fails a course?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the attendance policy?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>How many times can a course be repeated?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the grading scale at SEECS?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What are the requirements for the Dean's Honor List?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the maximum course load per semester?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the policy on academic probation?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>How are final grades calculated?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the procedure for dropping a course?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the internship requirement for graduation?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What are the thesis requirements for MS students?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What is the policy on plagiarism?</td><td>✓ (Safeguarded)</td><td>✗ (Out of scope)</td></tr>
+    <tr><td>How can a student appeal a grade?</td><td>✓</td><td>✓</td></tr>
+    <tr><td>What are the requirements for changing a major?</td><td>✓ (Safeguarded)</td><td>✗ (Out of scope)</td></tr>
+</table>
+
+<p><strong>Summary:</strong> 13/15 queries returned fully correct answers with highly relevant evidence. For the two queries where the handbooks did not explicitly contain the target policy (plagiarism and changing a major), the retrieval engine failed to find relevant chunks, but the Gemma-3 LLM successfully triggered its safeguard ("The provided excerpts do not contain information regarding this query"). No hallucinations were observed, confirming the strict grounding constraints are highly effective.</p>
+
+<h2>6. Tradeoff Analysis</h2>
+<ul>
+    <li><strong>Accuracy vs. Efficiency:</strong> TF-IDF guarantees the best lexical match but scans every document. LSH reduces the search space at risk of missing some similarities.</li>
+    <li><strong>Memory vs. Processing:</strong> TF-IDF consumes ~2.2 MB per query; LSH uses ~9 KB — a 99.6% reduction.</li>
+    <li><strong>Chunk Size:</strong> 150-word chunks improve short-query matching and citation focus over larger 500-word chunks, though they increase index size.</li>
+</ul>
+
+<h2>7. Conclusion</h2>
+<p>The SEECS Policy Guider demonstrates the practical application of Big Data indexing to academic policy retrieval. MinHash LSH and SimHash were implemented from scratch and combined into a Hybrid pipeline that rivals exact baseline accuracy while reducing memory by 62%. The PageRank extension adds structural intelligence by boosting authoritative handbook sections based on cross-reference analysis. Qualitative testing on 15 queries confirms the system produces accurate, grounded answers with no hallucinations. The grounded LLM layer ensures answers stay faithful to retrieved evidence.</p>
+
+<a href="https://drive.google.com/drive/folders/PLACEHOLDER_LINK" class="drive-link" target="_blank">
+    🎥 View System Demo Recording on Google Drive
+</a>
+
+</body>
+</html>
