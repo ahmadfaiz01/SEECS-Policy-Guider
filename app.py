@@ -156,7 +156,12 @@ def load_pagerank():
 
 @st.cache_resource(show_spinner="Connecting to LLM API...")
 def load_generator():
-    key = os.environ.get("GROQ_API_KEY", "")
+    key = ""
+    if "GROQ_API_KEY" in st.secrets:
+        key = st.secrets["GROQ_API_KEY"]
+    if not key:
+        key = os.environ.get("GROQ_API_KEY", "")
+        
     if not key:
         return None
     try:
