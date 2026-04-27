@@ -78,6 +78,7 @@ class SimHashIndex:
         To find matches, we unfortunately have to scan everything (O(n)).
         But comparing fingerprints is literally just an XOR operation, 
         so it's incredibly fast even on thousands of chunks.
+<<<<<<< HEAD
         
         We repeat short query tokens to amplify their signal before hashing.
         This reduces the length mismatch between a 6-word query and 150-word chunks.
@@ -89,6 +90,9 @@ class SimHashIndex:
             repeat = max(1, 50 // max(len(tokens), 1))
             text = " ".join(tokens * repeat)
         
+=======
+        """
+>>>>>>> origin/ahmad
         qfp = self._simhash(text)
 
         scored = [

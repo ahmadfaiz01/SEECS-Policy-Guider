@@ -296,7 +296,11 @@ def render_method_column(label: str, method_key: str, result, show_scores: bool,
             chunks_json = json.dumps([{"text": c.get("text", ""), "source": c.get("source", ""), "start_page": c.get("start_page", ""), "end_page": c.get("end_page", ""), "section": c.get("section", "")} for c in top_chunks])
             ans = get_cached_answer(query, chunks_json, method_key)
             if ans:
+<<<<<<< HEAD
                 st.markdown(f"**Policy Answer:**\n\n{ans['answer']}")
+=======
+                st.info(ans["answer"])
+>>>>>>> origin/ahmad
                 st.write("**References:**")
                 for s in ans["sources"]:
                     st.caption(f"- {s}")
